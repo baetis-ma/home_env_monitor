@@ -1,0 +1,119 @@
+<html>
+  <head>
+   <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+   <style> body { background-color: DarkSlateGrey; } </style>
+  </head>
+  <body>
+    <div id="div0" style="position:absolute;top:05%;left:10%;"></div>
+    <div id="div1" style="position:absolute;top:05%;left:39%;"></div>
+    <div id="div2" style="position:absolute;top:05%;left:68%;"></div>
+    <div id="div3" style="position:absolute;top:30%;left:01%;"></div>
+    <div id="div4" style="position:absolute;top:30%;left:24%;"></div>
+    <div id="div5" style="position:absolute;top:30%;left:51%;"></div>
+    <div id="div6" style="position:absolute;top:30%;left:74%;"></div>
+    <div id="div7" style="position:absolute;top:52%;left:01%;"></div>
+    <div id="div8" style="position:absolute;top:52%;left:24%;"></div>
+    <div id="div9" style="position:absolute;top:52%;left:51%;"></div>
+    <div id="diva" style="position:absolute;top:52%;left:74%;"></div>
+    <div id="divb" style="position:absolute;top:74%;left:01%;"></div>
+    <div id="divc" style="position:absolute;top:74%;left:24%;"></div>
+    <div id="divd" style="position:absolute;top:74%;left:51%;"></div>
+    <div id="dive" style="position:absolute;top:74%;left:74%;"></div>
+
+    <p id="namehost" style="position:absolute;top:00%;left:43%;">LivingRoom</p>
+    <p id="namerem1" style="position:absolute;top:28%;left:20%;">Porch</p>
+    <p id="namerem2" style="position:absolute;top:28%;left:70%;">BedRoom</p>
+    <p id="namerem3" style="position:absolute;top:50%;left:20%;">Porch</p>
+    <p id="namerem4" style="position:absolute;top:50%;left:70%;">BedRoom</p>
+    <p id="namerem5" style="position:absolute;top:72%;left:20%;">Porch</p>
+    <p id="namerem6" style="position:absolute;top:72%;left:70%;">BedRoom</p>
+    <script>
+      //setInterval(function(){ getData();} ,100000); 
+
+      //document.getElementById('raworbp').onclick = function() {
+      //    if(document.getElementById("raworbp").value === "Raw"){
+      //       document.getElementById("raworbp").value = "BP"; bporraw = 1; } else 
+      //     { document.getElementById("raworbp").value = "Raw"; bporraw = 0; }
+      //}
+
+      function getData() {
+         var tempstr = "1,2,3,4,5,6,7";
+         var xhr = new XMLHttpRequest();
+         xhr.open("GET", "getData?"+tempstr, true);
+         xhr.setRequestHeader("Content-Type", "application/bin");
+         xhr.send(tempstr);
+
+         xhr.onreadystatechange = function() {
+            if (this.readyState === XMLHttpRequest.DONE && this.status === 200) {
+               var DataRet = this.responseText;
+               var DataRetArray = DataRet.split(",");
+               var lasttraceptr;
+               console.log(" "+DataRet);
+               //var cntsamples= DataRetArray[0];
+               //var cntstart = DataRetArray[1];
+               //var heartrate = DataRetArray[2];
+               //var pctspo2 = DataRetArray[3];
+               //if(cntsamples >=1){
+               //for(x=4;x<2*cntsamples+4;x=x+2) {
+               //    tdata[traceptr] = cntstart++;
+               //    irdata[traceptr] = parseInt(DataRetArray[x+0],10);
+               //    rdata[traceptr] = parseInt(DataRetArray[x+1],10);
+               //    traceptr++;
+               //}}
+
+
+               //interface to html exery plot update
+               document.getElementById("div0").innerHTML = "Heart Rate"; 
+            }
+         }
+      }
+
+      google.charts.load('current', {'packages':['gauge']});
+      google.charts.setOnLoadCallback(drawChart);
+      function drawChart() {
+
+        var data = google.visualization.arrayToDataTable([ ['Label', 'Value'], ['Pressure', 1000], ]);
+
+        //pressure gauge
+        var optionsp = {
+          width:180,height:180,min:900,max:1100,redFrom:900,redTo:980,yellowFrom:1050,yellowTo:1100,
+          greenFrom:980,greenTo:1050,greenColor:"blue",minorTicks:5 };
+        //humidity guage
+        var optionsh = {
+          width:180,height:180,min:0,max:100,redFrom:75,redTo:100,yellowFrom:0,yellowTo: 35,
+          greenFrom:35,greenTo:75,greenColor:"blue",minorTicks:5 };
+        //temperature guage
+        var optionst = {
+          width:180,height:180,min:40,max:100,redFrom:72,redTo:100,yellowFrom:60,yellowTo: 72,
+          greenFrom:40,greenTo:60,greenColor:"blue",minorTicks:5 };
+
+        var chart;
+        data.setValue(0, 0, 'Pressure'); data.setValue(0, 1, 1008.6);
+        chart = new google.visualization.Gauge(document.getElementById('div0')); chart.draw(data, optionsp);
+        data.setValue(0, 0, 'Humidity'); data.setValue(0, 1, 23.4);
+        chart = new google.visualization.Gauge(document.getElementById('div1')); chart.draw(data, optionsh);
+        data.setValue(0, 0, 'Temperatire'); data.setValue(0, 1, 72.1);
+        chart = new google.visualization.Gauge(document.getElementById('div2')); chart.draw(data, optionst);
+        data.setValue(0, 0, 'Humidity'); data.setValue(0, 1, 23.7);
+        chart = new google.visualization.Gauge(document.getElementById('div3')); chart.draw(data, optionsh);
+        data.setValue(0, 0, 'Temperatire'); data.setValue(0, 1, 67.9);
+        chart = new google.visualization.Gauge(document.getElementById('div4')); chart.draw(data, optionst);
+        data.setValue(0, 0, 'Humidity'); data.setValue(0, 1, 23.7);
+        chart = new google.visualization.Gauge(document.getElementById('div5')); chart.draw(data, optionsh);
+        data.setValue(0, 0, 'Temperatire'); data.setValue(0, 1, 72.7);
+        chart = new google.visualization.Gauge(document.getElementById('div6')); chart.draw(data, optionst);
+        data.setValue(0, 0, 'Humidity'); data.setValue(0, 1, 23.7);
+        chart = new google.visualization.Gauge(document.getElementById('div7')); chart.draw(data, optionsh);
+        data.setValue(0, 0, 'Temperatire'); data.setValue(0, 1, 67.9);
+        chart = new google.visualization.Gauge(document.getElementById('div8')); chart.draw(data, optionst);
+        data.setValue(0, 0, 'Humidity'); data.setValue(0, 1, 23.7);
+        chart = new google.visualization.Gauge(document.getElementById('divb')); chart.draw(data, optionsh);
+        data.setValue(0, 0, 'Temperatire'); data.setValue(0, 1, 72.7);
+        chart = new google.visualization.Gauge(document.getElementById('divc')); chart.draw(data, optionst);
+
+      }
+    </script>
+
+  </body>
+</html>
+
