@@ -28,6 +28,6 @@
 5. name of station register to slot 1
 6. humidty measurement
 7. temperature measurement
-    item 5-7 will repeat for each registered station.
+8.      items 5-7 will repeat for each registered station.
 ##### The webpage displays the state of all the sensor measurement across the system with Google chart gauge visualizations, as new motes are added new gauges appear on wepage and as guages timeout they disappear. The webpage also includes text action boxes for station naming - for example stations can be named back porch or kitchen, ect... The rate of data aquistion is also set at this level.
 ##### A perl program is used to log environmental data. It can be set to collect data every 10 minutes, for example, and save data to disk. Notice that the webpage gives a snap shot updated every few seconds or minutes while the perl program provides a history of weeks or years worth of data.
