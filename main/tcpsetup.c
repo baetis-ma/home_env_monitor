@@ -132,7 +132,7 @@ void tcp_server_task(void *pvParameters)
                 inet_ntoa_r(((struct sockaddr_in *)&sourceAddr)->sin_addr.s_addr, addr_str, sizeof(addr_str) - 1);
                 //ESP_LOGI("---  ", "Received %d bytes from %s:", len, addr_str);
                 strcpy(glob_ipadrc, addr_str);  //address from client
-                //ESP_LOGI("", "HTTP REQUEST Packet\n%s", rx_buffer);
+                ESP_LOGI("", "HTTP REQUEST Packet\n%s", rx_buffer);
                 //parse request type and arg 
                 char http_type[8];
                 char url_resource[64];

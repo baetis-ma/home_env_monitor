@@ -40,6 +40,7 @@ char rx_buffer[1024];
 #define BMP280_I2C_ADDR       0x76
 #include "./bmp280.h"
 #include "./dht.c"
+float tempt, hum;
 #include "./functionc/ath10.c"
 
 #define I2C_ADDR_SSD1306       0x3c
@@ -71,7 +72,7 @@ int hostreq(char *rx_buffer, char *tx_buffer)
    if(toknum !=  3) return(0);
    num = atoi(token[0]); 
    strcpy(client[num].name, token[1]);
-   printf("name	 %s  numremotews %d\n", client[0].name, numremotes);
+   //printf("name	 %s  numremotews %d\n", client[0].name, numremotes);
    //rate = atoi(token[2]);
    sprintf(tx_buffer, "%d, %s,%d,%d,%d,", numremotes, client[0].name, client[0].humid, client[0].temp, pressure);
    for(int a=1; a<= numremotes; a++) {
@@ -150,18 +151,18 @@ void app_main(void)
        //printf("pressure= %d.%02d\n ", pressure/100, pressure%100);
        //printf("hum = %02d.%d   temp = %02d.%d\n",
        //     humidity/10, humidity%10, temperature/10, temperature%10);
-       client[0].humid = humidity;
-       client[0].temp = temperature;
+       client[0].humid = (int)10*hum;
+       client[0].temp = (int)10*tempt;
        client[0].active = 17;
        client[0].ip = 106;
-       strcpy(client[0].name, "host");
+       //strcpy(client[0].name, "host");
 
 
        sprintf(disp_str,"|4  Pressure||||4 %4d.%02dmb", pressure/100, pressure%100);
        ssd1306_text(disp_str);
 
        cnt++;
-       vTaskDelay(rate*1000/portTICK_RATE_MS);
+       vTaskDelay(5000/portTICK_RATE_MS);
     }
 
 }
