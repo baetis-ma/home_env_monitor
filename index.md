@@ -67,7 +67,6 @@ for(my $a=1; $a <= $inarray[0]; $a++) {
 #!/usr/bin/gnuplot -p
      set xdata time
      set timefmt "%Y/%m/%d"
-     #set xrange ["03/21/95":"03/22/95"]
      set yrange[0:1000]
      set format x "%m/%d\n%H:%M"
      set timefmt "%Y/%m/%d %H:%M:%S"
