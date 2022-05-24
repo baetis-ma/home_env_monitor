@@ -34,7 +34,7 @@
 ##### The webpage displays the state of all the sensor measurements across the system with Google chart gauge visualizations, as new remotes are added new gauges appear on webpage and as gauges timeout they disappear. The webpage also includes text action boxes for station naming - for example stations can be named backporch or kitchen, ect... The rate of data aquistion is also set at this level.
 
 ##### A perl program is used to log environmental data. It can be set to collect data every 10 minutes, for example, and save data to disk. Notice that the webpage gives a snap shot updated every few seconds or minutes while the perl program provides a history of weeks or years worth of data.
-```
+```perl
 #!/usr/bin/perl
 use strict;
 use warnings;
@@ -49,17 +49,32 @@ print "@inarray";
 
 printf ("%s %s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[1], $inarray[4]); 
 
-open(FH, '>>', "./${inarray[1]}.pressure");
+open(FH, '>>', "./save/${inarray[1]}.pressure");
 printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[4];
-open(FH, '>>', "./${inarray[1]}.hum");
+open(FH, '>>', "./save/${inarray[1]}.hum");
 printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[2];
-open(FH, '>>', "./${inarray[1]}.temp");
+open(FH, '>>', "./save/${inarray[1]}.temp");
 printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[3];
 
 for(my $a=1; $a <= $inarray[0]; $a++) {
-   open(FH, '>>', "./${inarray[5 + 3*($a-1)]}.hum");
+   open(FH, '>>', "./save/${inarray[5 + 3*($a-1)]}.hum");
    printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[6 + 3*($a-1)];
-   open(FH, '>>', "./${inarray[5 + 3*($a-1)]}.temp");
+   open(FH, '>>', "./save/${inarray[5 + 3*($a-1)]}.temp");
    printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M::%S',localtime), $inarray[7 + 3*($a-1)];
 }
+```
+##### This program can be run with the `watch -n 30 ./collectdata.pl` on the command line, it will collect data every thirty seconds and store each sensor reading in separate files in the ./save directory. The datastamp format in the files can be read with gnuplot programs like the following
+```gnuplot
+#!/usr/bin/gnuplot -p
+     set xdata time
+     set timefmt "%Y/%m/%d"
+     #set xrange ["03/21/95":"03/22/95"]
+     set yrange[0:1000]
+     set format x "%m/%d\n%H:%M"
+     set timefmt "%Y/%m/%d %H:%M:%S"
+     plot "LivingRoom.hum"  u 1:3 ,\
+          "BackPorch.hum"   u 1:3 ,\
+          "TanasRoom.hum"   u 1:3 ,\
+          "Kitchen.hum"     u 1:3 ,\
+          "BedRoom.hum"     u 1:3 
 ```
