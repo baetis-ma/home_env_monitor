@@ -9,12 +9,12 @@
 3. assigned station name
 4. humidity measurement
 5. temperature measurement 
-##### The remotes waits for response from host consisting of 
+##### The remotes waits for response from base server consisting of 
 1. regisration number
 2. assigned station name
 3. the rate to take samples
 ##### The esp32 tcp base server receives three different types of requests, namely 
-1. index.html request
+1. index.html request (typically from browser - sends multiple packets from esp eprom)
 2. a client request as described above
 3. a client request to read the collected sensor data and assign remote names.
 ##### The third type of client request can be originated from the JavaScript within the index.html being run in a browser or from a perl program running netcat commands every few minutes for the purpose of data logging. The url resources contained in a request consist of 
@@ -31,9 +31,8 @@
 7. humidty measurement
 8. temperature measurement
       items 6-8 will repeat for each registered station.
-##### The webpage displays the state of all the sensor measurements across the system with Google chart gauge visualizations, as new remotes are added new gauges appear on webpage and as gauges timeout they disappear. The webpage also includes text action boxes for station naming - for example stations can be named backporch or kitchen, ect... The rate of data aquistion is also set at this level.
-
-##### A perl program is used to log environmental data. It can be set to collect data every 10 minutes, for example, and save data to disk. Notice that the webpage gives a snap shot updated every few seconds or minutes while the perl program provides a history of weeks or years worth of data.
+##### The active webpage displays the state of all the sensor measurements across the system with Google chart gauge visualizations, as new remotes are added new gauges appear on webpage and as gauges timeout they disappear. The webpage also includes text action boxes for station naming - for example stations can be named backporch or kitchen, ect... The rate of data aquistion is also set at this level. 
+##### A perl program is used to log sensor data across the system. It can be set to collect data every 10 minutes, for example, and save data to disk. Notice that the webpage gives a snapshot updated every few seconds or minutes while the perl program provides a history of weeks or months worth of data.
 ```perl
 #!/usr/bin/perl
 use strict;
