@@ -39,7 +39,7 @@ char rx_buffer[1024];
 
 #define BMP280_I2C_ADDR       0x76
 #include "./bmp280.h"
-#include "./dht.c"
+//#include "./dht.c"
 float tempt, hum;
 #include "./functionc/ath10.c"
 
@@ -54,15 +54,18 @@ struct ClientData
       int humid;
       int temp;
 };
-struct ClientData client[16] = {0};;
+struct ClientData client[256] = {0};
 int rate=5, num, numremotes = 0, regnum;
-char temp[25];
+char temp[128];
 char * token[20];
+
+//handles client requests from outside data collection network
 int hostreq(char *rx_buffer, char *tx_buffer)
 {
    //printf("rx_buffer --> %s\n", rx_buffer);
    sprintf(tx_buffer, "\n");
    int toknum = 0;
+   //split up incomming packet 
    token[0] = strtok(rx_buffer, ",");
    while((token[toknum] != NULL)) {
       //printf("%d %s\n", toknum, token[toknum]);
@@ -72,12 +75,13 @@ int hostreq(char *rx_buffer, char *tx_buffer)
    if(toknum !=  3) return(0);
    num = atoi(token[0]); 
    strcpy(client[num].name, token[1]);
-   //printf("name	 %s  numremotews %d\n", client[0].name, numremotes);
-   //rate = atoi(token[2]);
+   rate = atoi(token[2]);
    sprintf(tx_buffer, "%d, %s,%d,%d,%d,", numremotes, client[0].name, client[0].humid, client[0].temp, pressure);
-   for(int a=1; a<= numremotes; a++) {
-      sprintf(temp, " %s,%d,%d,", client[a].name, client[a].humid, client[a].temp);
-      strcat(tx_buffer, temp);
+   for(int a=1; a<= 255; a++) {
+      if(client[a].ip > 0) {
+         sprintf(temp, "%d, %s,%d,%d,", client[a].ip, client[a].name, client[a].humid, client[a].temp);
+         strcat(tx_buffer, temp);
+      }
    }
    strcat(tx_buffer, "\n");
    tx_buffer[strlen(tx_buffer)] = '\0';
@@ -85,12 +89,13 @@ int hostreq(char *rx_buffer, char *tx_buffer)
    return(0);
 }
 
+//handels data from remote clients with sensor data
 int clientreq(char *rx_buffer, char *tx_buffer)
 {
-   int tempanum, tempip;
    //printf("rx_buffer --> %s\n", rx_buffer);
    sprintf(tx_buffer, "\n");
    int toknum = 0;
+   //split up incomming packet
    token[0] = strtok(rx_buffer, ",");
    while((token[toknum] != NULL)) {
       //printf("%d %s\n", toknum, token[toknum]);
@@ -99,31 +104,34 @@ int clientreq(char *rx_buffer, char *tx_buffer)
    }
    if(toknum !=  5) return(0);
 
-   tempanum = atoi(token[0]); 
-   //tempanum = atoi(token[0]+7); 
+   int num, tempnum, tempip, match;
+   tempnum = atoi(token[0]);
    sscanf(token[1], "192.168.0.%d", &tempip);
-   //printf("tempanum= %d tempip= %d\n", tempanum, tempip);
-   if(tempanum != 0) { num = tempanum; if(tempanum > numremotes) numremotes = tempanum; }
-      else { int match = 0;
-             for(int a = 0; a<= numremotes; a++) {
-                if(tempip == client[a].ip) { num = a; match = 1; }
-             }
-	     if(match != 1) { ++numremotes; num = numremotes; strcpy(client[num].name, "registered"); }
- 	   }
-   client[num].ip = tempip;
-   if(strlen(client[num].name) < 5) strcpy(client[num].name, "unreg");
-   client[num].humid = atoi(token[3]);
-   client[num].temp = atoi(token[4]);
-   client[num].active = 100;
+   client[tempip].ip = tempip;
+   if(strlen(client[tempip].name) < 4) strcpy(client[tempip].name, token[2]);
+   client[tempip].humid = atoi(token[3]);
+   client[tempip].temp = atoi(token[4]);
+   client[tempip].active = 30;
+   printf("Received num=%d  %d %s %d %d\n", tempnum,tempip,client[tempip].name,atoi(token[3]), atoi(token[4]) );
 
-   for (int a = 0; a <= numremotes; a++) if(client[a].active > 0) --client[a].active;
+   //decrement activity for each registered channel - unregister offline remotes
+   for (int a = 0; a <= 255; a++)  if(client[a].active > 0)  --client[a].active; 
+
    printf("state of clients struct\n");
-   for(int a = 0; a<= numremotes; a++)
-      printf("-->  client[%d]  %3d  %10s   %3d   %3d    %d\n", 
+   numremotes = 0;
+   for(int a = 0; a <= 255; a++){
+      if(client[a].active > 0) { ++numremotes;
+         printf("-->  client[%03d]  %3d  %16s   %3d   %3d    %d\n", 
             a, client[a].ip, client[a].name, client[a].humid, client[a].temp, client[a].active);
-   sprintf(tx_buffer, "%d,%s,%d\n", num, client[num].name, rate);
+         if(client[a].active < 15) { strcpy(client[a].name, "offline"); client[a].humid=0; client[a].temp= -17.777; }
+      }
+   }
+   --numremotes;
+
+   //packet back to remote client
+   sprintf(tx_buffer, "%d,%s,%d\n", tempip, client[tempip].name, rate);
+   printf("tx_buffer %s\n\n", tx_buffer);
    tx_buffer[strlen(tx_buffer)] = '\0';
-   //printf("tx_buffer %s\n\n", tx_buffer);
    return(0);
 }
 
@@ -140,12 +148,13 @@ void app_main(void)
     ssd1306_blank(0x00);
     char disp_str[128] = "4 Hi There";
     ssd1306_text(disp_str);
-    DHT11_init(GPIO_NUM_16);
+    strcpy(client[0].name, "host");
+    //DHT11_init(GPIO_NUM_16);
     xTaskCreatePinnedToCore (tcp_server_task, "tcp_server", 8096, NULL, 6, NULL, 0);
     while(1) {
        pressure =  bmp280_read();
        aht10_read();
-       DHT11_read();
+       //DHT11_read();
        //
        //printf("%d\n", cnt);
        //printf("pressure= %d.%02d\n ", pressure/100, pressure%100);
@@ -155,10 +164,12 @@ void app_main(void)
        client[0].temp = (int)10*tempt;
        client[0].active = 17;
        client[0].ip = 106;
-       //strcpy(client[0].name, "host");
 
 
-       sprintf(disp_str,"|4  Pressure||||4 %4d.%02dmb", pressure/100, pressure%100);
+       sprintf(disp_str,"1Pressure %7.1fmb|1Hum %4.1f%% Temp %4.1fF||", (float)pressure/100,hum, 32+1.8*tempt);
+       for(int a=1; a<= 255; a++) if(client[a].active>0) {
+         sprintf(temp,"%9s %4.1f%%%5.1fF|", client[a].name, (float)client[a].humid/10, 32+.18*(float)client[a].temp);
+         strcat(disp_str, temp); }
        ssd1306_text(disp_str);
 
        cnt++;

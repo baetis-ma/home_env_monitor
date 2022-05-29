@@ -44,17 +44,21 @@
        position: absolute; top = 5px; right = 0%; border: 4px outset teal;
        text-align: center; height: 170px; width: 20%;
      }
-     #assnum     { position:absolute;top:43%;right:20%;}
-     #assname    { position:absolute;top:63%;right:10%;}
+     #assnum     { position:absolute;top:60%;left:0%;}
+     #assname    { position:absolute;top:60%;right:0%;}
+     #assrate    { position:absolute;top:78%;right:05%;}
    </style>
   </head>
-  <body>
+  <body onload = "startUp()">
     <h5><p id="asstext" style="position:absolute;top:5px;left:75%;"> 
-    Enter number of guage pair and desired name
-    <input id="assnum" style="font-size:25px;background:#77c9d4;border:none;font-weight:bold;color:brown"
-           placeholder="4" size="1">
-    <input id="assname" style="font-size:25px;background:#77c9d4;border:none;font-weight:bold;color:brown"
+    Enter number of guage pair and desired name, rate on bottom
+
+    <input id="assnum" style="font-size:20px;background:#77c9d4;border:none;font-weight:bold;color:brown"
+           placeholder="0" size="1">
+    <input id="assname" style="font-size:20px;background:#77c9d4;border:none;font-weight:bold;color:brown"
            placeholder="backporch" onkeydown="entered()" size="7"> 
+    <input id="assrate" style="font-size:20px;background:#77c9d4;border:none;font-weight:bold;color:brown"
+           placeholder="10" onkeydown="entered()" size="1"> 
     </p>
 
     <div id="host">
@@ -98,17 +102,21 @@
       const humidity = new Array();
       const temperature = new Array();
       const name = new Array();
+      const ip = new Array();
       var pressure;
-      var numclient;
+      var numclient = 0;
       var cnt = 0;
       var temp;
-      setInterval(function(){ getData();} , 5000); 
+      function startUp() { }
+      setInterval(function(){ getData();} , 10000); 
 
       function entered() { if(event.key === 'Enter') {
          anum = Number(document.getElementById("assnum").value); 
          aname = document.getElementById("assname").value; 
          name[anum] = document.getElementById("assname").value; 
-         console.log(anum+"  "+aname);
+         rate = document.getElementById("assrate").value; 
+         if(rate <= 2 || rate > 600) { rate = 20; }
+         getData();
       }}
 
       function getData() {
@@ -128,9 +136,10 @@
                temperature[0] = DataRetArray[3];
                pressure = DataRetArray[4];
                for(cnt=1;cnt<=numclient;cnt++) {
-                  name[cnt] =        DataRetArray[5+3*(cnt-1)];
-                  humidity[cnt] =    DataRetArray[6+3*(cnt-1)];
-                  temperature[cnt] = DataRetArray[7+3*(cnt-1)];
+                  ip[cnt]   =        DataRetArray[5+4*(cnt-1)];
+                  name[cnt] =        DataRetArray[6+4*(cnt-1)];
+                  humidity[cnt] =    DataRetArray[7+4*(cnt-1)];
+                  temperature[cnt] = DataRetArray[8+4*(cnt-1)];
                }
             }
             drawChart();
@@ -176,14 +185,14 @@
               chart = new google.visualization.Gauge(document.getElementById(temp)); 
               chart.draw(data, optionst);
            temp = 'p'+cnt;
-           document.getElementById(temp).innerHTML= name[cnt]+"  - "+cnt;
+           document.getElementById(temp).innerHTML= name[cnt]+"  - "+ip[cnt];
            temp = 'remote'+cnt;
            document.getElementById(temp).style.border = "4px outset teal";
         }
       }
-      var anum = 1;
-      var aname = "porch";
-      var rate = 5;
+      var anum = 0;
+      var aname = "DeskTop";
+      var rate = 10;
     </script>
 
   </body>
