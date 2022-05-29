@@ -46,8 +46,6 @@ my @inarray = split (/,/, $ret);
 printf("%s  ", strftime('%Y/%m/%d  %H:%M:%S',localtime));
 print "@inarray";
 
-printf ("%s %s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[1], $inarray[4]); 
-
 open(FH, '>>', "./save/${inarray[1]}.pressure");
 printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[4];
 open(FH, '>>', "./save/${inarray[1]}.hum");
