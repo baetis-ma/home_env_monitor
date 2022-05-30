@@ -19,7 +19,8 @@
 #include "driver/i2c.h"
 #include "sdkconfig.h"
 //globals
-int temperature, humidity, pressure;
+//int temperature, humidity;
+int pressure;
 
 #define i2c_port                 0
 #define i2c_frequency       800000
@@ -35,11 +36,10 @@ int temperature, humidity, pressure;
 void trfData();
 char outstr[4096];
 char rx_buffer[1024];
-#include "./tcpsetup.c"
+#include "./functionc/tcpsetup.c"
 
 #define BMP280_I2C_ADDR       0x76
-#include "./bmp280.h"
-//#include "./dht.c"
+#include "./functionc/bmp280.h"
 float tempt, hum;
 #include "./functionc/ath10.c"
 
@@ -55,7 +55,7 @@ struct ClientData
       int temp;
 };
 struct ClientData client[256] = {0};
-int rate=5, num, numremotes = 0, regnum;
+int rate, num, numremotes = 0, regnum;
 char temp[128];
 char * token[20];
 
@@ -104,7 +104,7 @@ int clientreq(char *rx_buffer, char *tx_buffer)
    }
    if(toknum !=  5) return(0);
 
-   int num, tempnum, tempip, match;
+   int num, tempnum, tempip;
    tempnum = atoi(token[0]);
    sscanf(token[1], "192.168.0.%d", &tempip);
    client[tempip].ip = tempip;
@@ -123,7 +123,7 @@ int clientreq(char *rx_buffer, char *tx_buffer)
       if(client[a].active > 0) { ++numremotes;
          printf("-->  client[%03d]  %3d  %16s   %3d   %3d    %d\n", 
             a, client[a].ip, client[a].name, client[a].humid, client[a].temp, client[a].active);
-         if(client[a].active < 15) { strcpy(client[a].name, "offline"); client[a].humid=0; client[a].temp= -17.777; }
+         if(client[a].active < 10) { strcpy(client[a].name, "offline"); client[a].humid=0; client[a].temp= -18; }
       }
    }
    --numremotes;
@@ -149,6 +149,7 @@ void app_main(void)
     char disp_str[128] = "4 Hi There";
     ssd1306_text(disp_str);
     strcpy(client[0].name, "host");
+    rate = 5;
     //DHT11_init(GPIO_NUM_16);
     xTaskCreatePinnedToCore (tcp_server_task, "tcp_server", 8096, NULL, 6, NULL, 0);
     while(1) {
@@ -162,11 +163,11 @@ void app_main(void)
        //     humidity/10, humidity%10, temperature/10, temperature%10);
        client[0].humid = (int)10*hum;
        client[0].temp = (int)10*tempt;
-       client[0].active = 17;
+       client[0].active = 30;
        client[0].ip = 106;
 
 
-       sprintf(disp_str,"1Pressure %7.1fmb|1Hum %4.1f%% Temp %4.1fF||", (float)pressure/100,hum, 32+1.8*tempt);
+       sprintf(disp_str,"1Pressure %7.1fmb|1Hum %4.1f%% Temp %4.1fF|", (float)pressure/100,hum, 32+1.8*tempt);
        for(int a=1; a<= 255; a++) if(client[a].active>0) {
          sprintf(temp,"%9s %4.1f%%%5.1fF|", client[a].name, (float)client[a].humid/10, 32+.18*(float)client[a].temp);
          strcat(disp_str, temp); }
