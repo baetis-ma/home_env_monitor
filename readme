@@ -1,0 +1,13 @@
+. ~/esp/esp-idf/export.sh
+
+during make flash need to push switch to start connection
+
+
+
+curl --http0.9 192.168.0.106 --output -
+ idf.py -p /dev/ttyUSB0  flash monitor
+ idf.py -p /dev/ttyUSB0  fullcleam
+
+
+make flash monitor ESPPORT=/dev/ttyUSB1
+

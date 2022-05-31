@@ -157,7 +157,7 @@ void tcp_server_task(void *pvParameters)
                 if (strcmp("index.html", url_name) ==0 || strcmp("HTTP/1.1",url_name) ==0 ){
                     extern const char index_start[] asm("_binary_index_html_start");
                     extern const char index_end[] asm("_binary_index_html_end");
-                    int pkt_buf_size = 1500;
+                    int pkt_buf_size = 1500; //max packet size
                     int pkt_end = pkt_buf_size;
                     int ro_len =  strlen(index_start) - strlen(index_end);
                     for( int pkt_ptr = 0; pkt_ptr < ro_len; pkt_ptr = pkt_ptr + pkt_buf_size){
@@ -166,17 +166,14 @@ void tcp_server_task(void *pvParameters)
                             send(sock, index_start + pkt_ptr, pkt_end, 0);
                     }
                  } else 
-	         if(strstr(url_name, "host") != NULL) {
+                 if(strstr(url_name, "host") != NULL) {
                     hostreq(url_resource, tx_buffer);
                     tx_buffer[sizeof(tx_buffer)] = '\0';
                     send(sock, tx_buffer, strlen(tx_buffer), 0);
-         	 } else 
+                 } else 
                  if(strstr(url_name, "client") != NULL) {
-                    //temp = (strchr(url_name, '?') - url_name);
-                    //strcpy (espRxData, url_name + temp + 1 );
-                    //if (strncmp("client", url_name,6)==0) {
                     clientreq(url_resource, tx_buffer);
-		    if(strlen(tx_buffer) < 4) strcpy(tx_buffer, "<html><h1>Packet Error</html>\n");
+                    if(strlen(tx_buffer) < 4) strcpy(tx_buffer, "<html><h1>Packet Error</html>\n");
                     tx_buffer[sizeof(tx_buffer)] = '\0';
                     send(sock, tx_buffer, strlen(tx_buffer), 0);
                  } else { 

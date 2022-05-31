@@ -153,15 +153,15 @@
         //pressure gauge
         var optionsp = {
           width:150,height:150,min:900,max:1100,redFrom:900,redTo:980,yellowFrom:1050,yellowTo:1100,
-          greenFrom:980,greenTo:1050,greenColor:"blue",minorTicks:5 };
+          greenFrom:980,greenTo:1050,greenColor:"blue",majorTicks:5 };
         //humidity guage
         var optionsh = {
           width:150,height:150,min:0,max:100,redFrom:75,redTo:100,yellowFrom:0,yellowTo: 35,
-          greenFrom:35,greenTo:75,greenColor:"blue",minorTicks:5 };
+          greenFrom:35,greenTo:75,greenColor:"blue",majorTicks:6 };
         //temperature guage
         var optionst = {
           width:150,height:150,min:40,max:100,redFrom:72,redTo:100,yellowFrom:60,yellowTo: 72,
-          greenFrom:40,greenTo:60,greenColor:"blue",minorTicks:5 };
+          greenFrom:40,greenTo:60,greenColor:"blue",majorTicks:7 };
 
         var chart;
         data.setValue(0, 0, "Humid -%"); data.setValue(0, 1, humidity[0]/10);
@@ -192,7 +192,7 @@
       }
       var anum = 0;
       var aname = "DeskTop";
-      var rate = 10;
+      var rate = 20;
     </script>
 
   </body>

@@ -89,7 +89,7 @@ int hostreq(char *rx_buffer, char *tx_buffer)
    return(0);
 }
 
-//handels data from remote clients with sensor data
+//handles data from remote clients with sensor data
 int clientreq(char *rx_buffer, char *tx_buffer)
 {
    //printf("rx_buffer --> %s\n", rx_buffer);
@@ -150,22 +150,14 @@ void app_main(void)
     ssd1306_text(disp_str);
     strcpy(client[0].name, "host");
     rate = 5;
-    //DHT11_init(GPIO_NUM_16);
     xTaskCreatePinnedToCore (tcp_server_task, "tcp_server", 8096, NULL, 6, NULL, 0);
     while(1) {
        pressure =  bmp280_read();
        aht10_read();
-       //DHT11_read();
-       //
-       //printf("%d\n", cnt);
-       //printf("pressure= %d.%02d\n ", pressure/100, pressure%100);
-       //printf("hum = %02d.%d   temp = %02d.%d\n",
-       //     humidity/10, humidity%10, temperature/10, temperature%10);
        client[0].humid = (int)10*hum;
        client[0].temp = (int)10*tempt;
        client[0].active = 30;
        client[0].ip = 106;
-
 
        sprintf(disp_str,"1Pressure %7.1fmb|1Hum %4.1f%% Temp %4.1fF|", (float)pressure/100,hum, 32+1.8*tempt);
        for(int a=1; a<= 255; a++) if(client[a].active>0) {
