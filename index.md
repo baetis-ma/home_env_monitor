@@ -2,6 +2,23 @@
 <img align="right" width="55%" height="45%" src="gauges0.png"></img>
 ##### A system is presented that connects a group of remote clients, each having several sensors, distributed over a local area network with a base station that coolects and reports the collected data. The remote clients, at a periodic rate, collect their data and report it to the base server. The server reponds with the remote stations assigned name and the rate at which to collect data. The base server collects the latest data from all the remote clients as well as its' own sensors data. Another type of client request from a browser, or a netcat command from a pc, will cause the server to return the data from all of the sensors on the network. An index.html file is shown that displays this data with google visualization gauges and a perl program is described that collects the sensor data, time stamps it and stores it in file.
 ##### The system is implemented with an esp32 wroom as the base server with the remotes being various types of esp8266 modules at hand (mostly mini D1s, a nodeMCU and a few esp01s). Sensors included in project included one bmp280 atmospheric pressure sensor and an handful of humidity/temperature sensors (ath10, dht11 and dht22s). The host esp32 is running a tcp server task and periododicly interfaces with three on board i2c devices- data is collected from an aht10 (humidity and temperature) and a bmp280 (atmospheric pressure) sensor - data is written to a ssd1306 display. A potentially large number of remote esp8266s, running a tcp client, are equiped with a humity and temperature sensor and distributed around the house and backyard. The software for the esp8266 remotes is stored in a repository at https://github.com/baetis-ma/home_env_client.
+```
+I (59377907) : HTTP REQUEST Packet
+GET /client?113,192.168.0.113,Basement,670,173 HTTP/1.1
+Host: 192.168.0.106
+User-Agent: curl/7.68.0
+
+Received num=113  113 Basement 670 173
+state of clients struct
+-->  client[000]  106              host   505   234    28
+-->  client[107]  107            MarkBR   618   252    26
+-->  client[108]  108          MontanaR   547   247    27
+-->  client[109]  109           Kitchen   560   227    28
+-->  client[113]  113          Basement   670   173    29
+-->  client[123]  123         BackPorch   488   262    25
+tx_buffer 113,Basement,8
+
+```
 ##### The esp portion of the project is written in the espressif idf envirornment. The project functionality was merged from various examples included with the idf distribution, specifically the wifi connection example was used with little alteration. The i2c and tcp server examples were modified to suit purposes. Pretty much all the rest of the software is written from scratch. idf drivers for the dhts11/22, aht10, bmp280 and ssd1306 were either unavailable or too confusing (several of these devices have aweful datasheets also). The repository https://github.com/baetis-ma/esp32-max30102-website and the github page at https://baetis-ma.github.io/esp32-idf-website/ describe getting started with esp idf with a simple webpage.
 ##### The esp8266 tcp client remotes, independently, periodically collect data from it's sensors and sends a tcp packet with the following resources 
 1. regitration number assigned by host (or a zero to request registration)
