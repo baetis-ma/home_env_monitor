@@ -13,54 +13,27 @@ GET /index.html HTTP/1.1
 Host: 192.168.0.106
 User-Agent: curl/7.68.0
 ```
-##### The esp32 returns an index.html file (9.2Kbytes) 
+###### The esp32 responds with an index.html file (9.2Kbytes - stored esp32 eprom) split up into a half dozen or more packets to a browser making the request. The index.html file contains static html and sytle insctuctions as well as an embedded active javascript program that periodically polls the base server for new data and updates the web page.
 ##### 2- a remote client packet as described above
 ```
 GET /client?113,192.168.0.113,Basement,670,173 HTTP/1.1
 Host: 192.168.0.106
 User-Agent: curl/7.68.0
 ```
-##### 3- or a 'host' request to read the collected sensor data and assign remote variables; a tcp request not meeting one of these criteria will get a 404 error return web page.
+###### The esp32 responds with a packet containing something like `113,Basement,60`, again described above.
+##### 3- or a 'host' request to read the collected sensor data and assign remote variables; 
 ```
-GET /client?113,192.168.0.113,Basement,670,173 HTTP/1.1
+GET /host?113,Basement,60 HTTP/1.1
 Host: 192.168.0.106
 User-Agent: curl/7.68.0
 ```
-
-
-5, host,480,247,99687,107, MarkBR,454,252,108, MontanaR,468,250,109, Kitchen,540,233,113, Basement,690,173,123, BackPorch, 398,239
+###### The esp32 base station will interpet this packet as - make name of station at regisration address 'Basement' and - make 60 seconds the data collection and reporting rate system wide. The esp32 will respond with a packet including the string : 
+`5, host,480,247,99687,107, MarkBR,454,252,108, MontanaR,468,250,109, Kitchen,540,233,113, Basement,690,173,123, BackPorch, 398,239`
+###### The first number is the number of attached remotes, second field is name of base station followed by its humidity, temperature and pressure measurements. Next is the name of remotes station one followed by its' humidity and temperature measurements, the sequence repeats for each assigned remote esp8266 module.
 ##### The third type of client request is used to collect data from the base station and to set variables across the system (i.e. remote stations names and data collection rate). This type of request originates from the JavaScript within the index.html being run in a browser, from a perl program running netcat commands every few minutes for the purpose of data logging or a simple terminal command line curl command. 
-The url resources contained in a request consist of 
-1. regisration number
-2. station name to be assigned to regration number
-3. rate in seconds of updates for data collection and webpage. 
-##### The tcp response is 
-1. number of registered devices
-2. name assigned to station
-3. pressure measurement
-4. humidity measurement
-5. temperature measurement
-6. name of station register to slot 1
-7. humidty measurement
-8. temperature measurement
-      items 6-8 will repeat for each registered station.
-##### The active webpage displays the state of all the sensor measurements across the system with Google chart gauge visualizations, as new remotes are added new gauges appear on webpage and as gauges timeout they go offline. The webpage also includes text action boxes for station naming - for example stations can be named backporch or kitchen, ect. The remote station will retain its name is the base station is momentarily shut down, also the base stattion will remember station names of remotes. The rate of data aquistion is also set at this level. The oled display also shows the measurement data.
+##### A tcp request not meeting one of these criteria will get a 404 error return web page, `<html><h1>Not Found 404</html>`.
 <img align="right" width="40%" height="35%:" src="oled.jpg"></img>
-```
-
-
-Received num=113  113 Basement 670 173
-state of clients struct
--->  client[000]  106              host   505   234    28
--->  client[107]  107            MarkBR   618   252    26
--->  client[108]  108          MontanaR   547   247    27
--->  client[109]  109           Kitchen   560   227    28
--->  client[113]  113          Basement   670   173    29
--->  client[123]  123         BackPorch   488   262    25
-tx_buffer 113,Basement,8
-```
-
-
+##### The active webpage displays the state of all the sensor measurements across the system with Google chart gauge visualizations, as new remotes are added new gauges appear on webpage and as gauges timeout they go offline. The webpage also includes text action boxes for station naming - for example stations can be named backporch or kitchen, ect. The remote station will retain its name is the base station is momentarily shut down, also the base stattion will remember station names of remotes. The rate of data aquistion is also set at this level. The oled display also shows the measurement data.
 ##### A perl program is used to log sensor data across the system. It can be set to collect data every 10 minutes, for example, and save data to disk. Notice that the webpage gives a snapshot updated every few seconds or minutes while the perl program provides a history of weeks or months worth of data.
 ```perl
 #!/usr/bin/perl
@@ -89,7 +62,7 @@ for(my $a=1; $a <= $inarray[0]; $a++) {
    printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M::%S',localtime), $inarray[7 + 3*($a-1)];
 }
 ```
-##### This program can be run with the `watch -n 30 ./collectdata.pl` on the command line, it will collect data every thirty seconds and store each sensor reading in separate files in the ./save directory. The datastamp format in the files can be read with gnuplot programs like the following
+##### This program can be run with the `watch -n 120 ./collectdata.pl` on the command line, it will collect data every two minutes and store each sensor reading in separate files in the ./save directory. The datastamp format in the files can be read with gnuplot programs like the following
 ```gnuplot
 #!/usr/bin/gnuplot -p
      set xdata time
@@ -97,10 +70,11 @@ for(my $a=1; $a <= $inarray[0]; $a++) {
      set yrange[0:1000]
      set format x "%m/%d\n%H:%M"
      set timefmt "%Y/%m/%d %H:%M:%S"
-     plot "LivingRoom.hum"  u 1:3 ,\
+     plot "DeskTop.hum"     u 1:3 ,\
           "BackPorch.hum"   u 1:3 ,\
-          "TanasRoom.hum"   u 1:3 ,\
+          "MontanaR.hum"    u 1:3 ,\
+          "Basement.hum"    u 1:3 ,\     
           "Kitchen.hum"     u 1:3 ,\
-          "BedRoom.hum"     u 1:3 
+          "MarkBR.hum"      u 1:3 
 ```
 ##### The esp portion of the project is written in the espressif idf envirornment. The project functionality was merged from various examples included with the idf distribution, specifically the wifi connection example was used with little alteration. The i2c and tcp server examples were modified to suit purposes. Pretty much all the rest of the software is written from scratch. idf drivers for the dhts11/22, aht10, bmp280 and ssd1306 were either unavailable or too confusing (several of these devices have aweful datasheets also). The repository https://github.com/baetis-ma/esp32-max30102-website and the github page at https://baetis-ma.github.io/esp32-idf-website/ describe getting started with esp idf with a simple webpage.
