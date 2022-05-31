@@ -43,12 +43,14 @@ use strict;
 use warnings;
 use POSIX qw/strftime/;
 
-my $ret = `printf "GET /host?0, DeskTop,8 HTTP/1.0\r\n\r\n" | nc 192.168.0.106 80`; 
+my $ret = `printf "GET /host?0,DeskTop,8 HTTP/1.0\r\n\r\n" | nc 192.168.0.106 80`; 
 $ret =~ tr/ //ds;
 my @inarray = split (/,/, $ret);
 
 printf("%s  ", strftime('%Y/%m/%d  %H:%M:%S',localtime));
 print "@inarray";
+
+#printf ("%s %s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[1], $inarray[4]); 
 
 open(FH, '>>', "./save/${inarray[1]}.pressure");
 printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[4];
@@ -58,10 +60,10 @@ open(FH, '>>', "./save/${inarray[1]}.temp");
 printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[3];
 
 for(my $a=1; $a <= $inarray[0]; $a++) {
-   open(FH, '>>', "./save/${inarray[5 + 3*($a-1)]}.hum");
-   printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[6 + 3*($a-1)];
-   open(FH, '>>', "./save/${inarray[5 + 3*($a-1)]}.temp");
-   printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M::%S',localtime), $inarray[7 + 3*($a-1)];
+   open(FH, '>>', "./save/${inarray[6 + 4*($a-1)]}.hum");
+   printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[7 + 4*($a-1)];
+   open(FH, '>>', "./save/${inarray[6 + 4*($a-1)]}.temp");
+   printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[8 + 4*($a-1)];
 }
 ```
 ##### This program can be run with the `watch -n 120 ./collectdata.pl` on the command line, it will collect data every two minutes and store each sensor reading in separate files in the ./save directory. The datastamp format in the files can be read with gnuplot programs like the following
