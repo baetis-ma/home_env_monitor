@@ -29,7 +29,7 @@ User-Agent: curl/7.68.0
 ```
 ###### The esp32 base station will interpet this packet as - make name of station at regisration address 'Basement' and - make 60 seconds the data collection and reporting rate system wide. The esp32 will respond with a packet including the string : 
 ```
-5, host,480,247,99687,107, MarkBR,454,252,108, MontanaR,468,250,109, Kitchen,540,233,113, Basement,690,173,123, BackPorch, 398,239
+5, DeskTop,480,247,99687,107, MarkBR,454,252,108, MontanaR,468,250,109, Kitchen,540,233,113, Basement,690,173,123, BackPorch, 398,239
 ```
 ###### The first number is the number of attached remotes, second field is name of base station followed by its humidity, temperature and pressure measurements. Next is the name of remotes station one followed by its' humidity and temperature measurements, the sequence repeats for each assigned remote esp8266 module.
 ##### The third type of client request is used to collect data from the base station and to set variables across the system (i.e. remote stations names and data collection rate). This type of request originates from the JavaScript within the index.html being run in a browser, from a perl program running netcat commands every few minutes for the purpose of data logging or a simple terminal command line curl command. 
@@ -43,7 +43,7 @@ use strict;
 use warnings;
 use POSIX qw/strftime/;
 
-my $ret = `printf "GET /host?0,host,8 HTTP/1.0\r\n\r\n" | nc 192.168.0.106 80`; 
+my $ret = `printf "GET /host?0, DeskTop,8 HTTP/1.0\r\n\r\n" | nc 192.168.0.106 80`; 
 $ret =~ tr/ //ds;
 my @inarray = split (/,/, $ret);
 
