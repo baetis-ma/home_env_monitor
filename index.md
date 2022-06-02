@@ -65,8 +65,8 @@ for(my $a=1; $a <= $inarray[0]; $a++) {
    open(FH, '>>', "./save/${inarray[6 + 4*($a-1)]}.temp");
    printf  FH "%s %s\n", strftime('%Y/%m/%d  %H:%M:%S',localtime), $inarray[8 + 4*($a-1)];
 }
-<img align="right" width="55%" height="45%" src="graph.png"></img>
 ```
+<img align="right" width="55%" height="45%" src="graph.png"></img>
 ##### This program can be run with the `watch -n 120 ./collectdata.pl` on the command line, it will collect data every two minutes and store each sensor reading in separate files in the ./save directory. The datastamp format in the files can be read with gnuplot programs like the following
 ```gnuplot
 #!/usr/bin/gnuplot -p
