@@ -70,16 +70,40 @@ for(my $a=1; $a <= $inarray[0]; $a++) {
 ##### This program can be run with the `watch -n 120 ./collectdata.pl` on the command line, it will collect data every two minutes and store each sensor reading in separate files in the ./save directory. The datastamp format in the files can be read with gnuplot programs like the following
 ```gnuplot
 #!/usr/bin/gnuplot -p
+     set multiplot layout 3, 1
      set xdata time
      set timefmt "%Y/%m/%d"
-     set yrange[0:1000]
+     #set xrange ["03/21/95":"03/22/95"]
+     set yrange[40:100]
      set format x "%m/%d\n%H:%M"
      set timefmt "%Y/%m/%d %H:%M:%S"
-     plot "DeskTop.hum"     u 1:3 ,\
-          "BackPorch.hum"   u 1:3 ,\
-          "MontanaR.hum"    u 1:3 ,\
-          "Basement.hum"    u 1:3 ,\     
-          "Kitchen.hum"     u 1:3 ,\
-          "MarkBR.hum"      u 1:3 
+     set key font ",4"
+     set key left top 
+     #set key left top Left title 'Temp' box 3
+     set size 0.99, 0.40
+     set origin 0.01,0.60
+     #unset xtics
+     set xtics font ",6"
+     plot "save/BackPorch.temp" u 1:(32+0.18*$3) title 'BackPorch' w dots lw 2, \
+          "save/Basement.temp"  u 1:(32+0.18*$3) title 'Basement' w dots lw 2, \
+          "save/DeskTop.temp"   u 1:(32+0.18*$3) title 'DeskTop' w dots lw 2, \
+          "save/Kitchen.temp"   u 1:(32+0.18*$3) title 'Kitchen' w dots lw 2, \
+          "save/MarkBR.temp"    u 1:(32+0.18*$3) title 'MarkBR' w dots lw 2, \
+          "save/MontanaR.temp"  u 1:(32+0.18*$3) title 'MontanaR' w dots lw 2 
+     set yrange[0:100]
+     set size 0.99, 0.40
+     set origin 0.01, 0.25
+     plot "save/BackPorch.hum"  u 1:(0.1*$3) title 'BackPorch' w dots lw 2, \
+          "save/Basement.hum"   u 1:(0.1*$3) title 'Basement' w dots lw 2, \
+          "save/DeskTop.hum"    u 1:(0.1*$3) title 'DeskTop' w dots lw 2, \
+          "save/Kitchen.hum"    u 1:(0.1*$3) title 'Kitchen' w dots lw 2, \
+          "save/MarkBR.hum"     u 1:(0.1*$3) title 'MarkBR' w dots lw 2, \
+          "save/MontanaR.hum"   u 1:(0.1*$3) title 'MontanaR' w dots lw 2 
+     set yrange[950:1020]
+     set xtics 
+     set size 1, 0.30
+     set origin 0, 0
+     plot "save/DeskTop.pressure"   u 1:(0.01*$3) title 'Pressure' w dots lw 2
+     unset multiplot
 ```
 ##### The esp portion of the project is written in the espressif idf environment. The project functionality was merged from various examples included with the idf distribution, specifically the wifi connection example was used with little alteration. The i2c and tcp server examples were modified to suit purposes. Pretty much all the rest of the software is written from scratch. idf drivers for the dhts11/22, aht10, bmp280 and ssd1306 were either unavailable or too confusing (several of these devices have aweful datasheets also). The repository https://github.com/baetis-ma/esp32-max30102-website and the github page at https://baetis-ma.github.io/esp32-idf-website/ describe getting started with esp idf with a simple webpage.
