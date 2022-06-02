@@ -67,7 +67,6 @@ for(my $a=1; $a <= $inarray[0]; $a++) {
 }
 ```
 ##### This program can be run with the `watch -n 120 ./collectdata.pl` on the command line, it will collect data every two minutes and store each sensor reading in separate files in the ./save directory. The datastamp format in the files can be read with gnuplot programs like the following
-<img align="right" width="45%" height="65%" src="graph.png"></img>
 ```gnuplot
 #!/usr/bin/gnuplot -p
      set multiplot layout 3, 1
@@ -106,4 +105,5 @@ for(my $a=1; $a <= $inarray[0]; $a++) {
      plot "save/DeskTop.pressure"   u 1:(0.01*$3) title 'Pressure' w dots lw 2
      unset multiplot
 ```
+<img src="graph.png"></img>
 ##### The esp portion of the project is written in the espressif idf environment. The project functionality was merged from various examples included with the idf distribution, specifically the wifi connection example was used with little alteration. The i2c and tcp server examples were modified to suit purposes. Pretty much all the rest of the software is written from scratch. idf drivers for the dhts11/22, aht10, bmp280 and ssd1306 were either unavailable or too confusing (several of these devices have aweful datasheets also). The repository https://github.com/baetis-ma/esp32-max30102-website and the github page at https://baetis-ma.github.io/esp32-idf-website/ describe getting started with esp idf with a simple webpage.
